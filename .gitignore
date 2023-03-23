@@ -76,7 +76,7 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-data/
+/data/
 
 # exclude venv
 venv/
@@ -85,7 +85,7 @@ venv/
 wandb/
 
 # exclude models
-models/
+/models/
 
 # Mac OS-specific storage files
 .DS_Store

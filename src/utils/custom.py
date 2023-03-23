@@ -55,5 +55,5 @@ class ReplaceValue(Transform):
 
     def __call__(self, data):
         for key in self.keys:
-            data[key] = np.where(data[key] == 0.0, 0.0, data[key])
+            data[key] = np.where(data[key] <= 0.0, 0.0, data[key])
         return data

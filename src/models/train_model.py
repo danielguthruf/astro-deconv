@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # parser.add_argument('--model', type=str, default='base_denoise', help='model architecture')
     # parser.add_argument('--metric', type=str, default='hello', help='evaluation metric')
     parser.add_argument('--query_id', type=str, default='hubble_base', help='query_id / name of data')
-    parser.add_argument('--wandb_id', type=str, default="c5wa3d3g", help="run_id of wandb_run")
+    parser.add_argument('--wandb_id', type=str, default="zf50mjj4", help="run_id of wandb_run")
     parser.add_argument('--run_name', type=str, default=None, help="specific_run_name")
     parser.add_argument('--finetune', type=str, default=None, help="specific_run_name")
     parser.add_argument('--config', type=str, default="default", help="name of you config file yaml")

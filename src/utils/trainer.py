@@ -22,7 +22,8 @@ class Trainer:
                  lr_scheduler=None, 
                  model_dir='saved_models',
                  evaluation_step=10,
-                 run=None
+                 run=None,
+                 half=False,
                  ):
         
         self.model = model.to(device)
@@ -37,6 +38,7 @@ class Trainer:
         self.evaluation_step=evaluation_step
         self.run = run
         self.metricS=metricS
+        self.half = half
 
         os.makedirs(model_dir, exist_ok=True)
 
@@ -89,13 +91,7 @@ class Trainer:
             noisy_image, image = noisy_image.to(self.device), image.to(self.device)
             self.optimizer.zero_grad(set_to_none=True)
 
-            with autocast():
-                outputs = self.model(noisy_image)
-                loss = self.criterion(outputs, image)
-
-            self.scaler.scale(loss).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
+            loss = self.backpropagation(noisy_image=noisy_image,image=image)
             running_loss += loss.item()
 
             # Print loss and time for each step
@@ -111,6 +107,21 @@ class Trainer:
         torch.cuda.empty_cache()
 
 
+    def backpropagation(self,noisy_image,image):
+        if self.half:
+            with autocast():
+                outputs = self.model(noisy_image)
+                loss = self.criterion(outputs, image)
+
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+        else:
+            outputs=self.model(noisy_image)
+            loss = self.criterion(outputs, image)
+            loss.backward()
+            self.optimizer.step()
+        return loss
     def evaluate(self, epoch):
         self.model.eval()
         all_metric_dict={}
@@ -123,11 +134,15 @@ class Trainer:
             for data in tqdm(self.eval_loader):
                 noisy_image, image = data['noisy_image'], data['image']
                 noisy_image, image = noisy_image.to(self.device), image.to(self.device)
-                with autocast():
-                    inferer = SlidingWindowInferer(**self.run.config.sliding_window
-                    )
-                    outputs = inferer(noisy_image,self.model)
-                
+                if self.half:
+                    with autocast():
+                        inferer = SlidingWindowInferer(**self.run.config.sliding_window
+                        )
+                        outputs = inferer(noisy_image,self.model)
+                else:
+                        inferer = SlidingWindowInferer(**self.run.config.sliding_window
+                        )
+                        outputs = inferer(noisy_image,self.model)       
                 # Measure the SSIM and PSNR metrics
                 for metric in self.metricS:
                     name=type(metric).__name__

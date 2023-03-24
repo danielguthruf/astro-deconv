@@ -5,13 +5,11 @@ class PoissonNoise(Transform, Randomizable):
     def __init__(self,
                  keys,
                  ratio=2, 
-                 ps=None, 
                  ron=3, 
                  dk=7, 
                  ):
         self.keys=keys
         self.ratio = ratio
-        self.ps = ps
         self.ron = ron
         self.dk = dk
 

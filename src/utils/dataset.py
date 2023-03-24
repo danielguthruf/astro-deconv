@@ -56,7 +56,7 @@ class AstroDataset:
                 collate_fn=list_data_collate,
             )
         else:
-            loader = DataLoader(dataset, batch_size=1, num_workers=self.num_workers)
+            loader = DataLoader(dataset, batch_size=1, num_workers=self.num_workers,pin_memory=self.pin_memory)
         return loader
     
 def getTransformS(data_split,crop):
@@ -73,18 +73,18 @@ def getDefaultTransforms(data_split,crop):
                 CopyItemsd(keys=["image"],
                             names=["noisy_image"]),
                 PoissonNoise(keys=["noisy_image"]),
-                # ScaleIntensityRanged(
-                #     keys=["image","noisy_image"],
-                #     a_min=0,
-                #     a_max=100,
-                #     b_min=0.0,
-                #     b_max=1.0,
-                #     clip=True,
-                # ),
+                ScaleIntensityRanged(
+                    keys=["image","noisy_image"],
+                    a_min=0,
+                    a_max=1,
+                    b_min=0.0,
+                    b_max=1.0,
+                    clip=True,
+                ),
 
                 # RemoveZeroImage(),
-                ToTensord(keys=['image','noisy_image'], dtype=torch.float16),
-                CastToTyped(keys=['image','noisy_image'], dtype=torch.float16),
+                ToTensord(keys=['image','noisy_image'], dtype=torch.float32),
+                CastToTyped(keys=['image','noisy_image'], dtype=torch.float32),
         ])
     elif data_split=="validation":
         transforms = Compose([
@@ -95,16 +95,16 @@ def getDefaultTransforms(data_split,crop):
                             names=["noisy_image"]),
                 PoissonNoise(keys=["noisy_image"]),
                 # RemoveZeroImage(),
-                # ScaleIntensityRanged(
-                #     keys=["image","noisy_image"],
-                #     a_min=0,
-                #     a_max=100,
-                #     b_min=0.0,
-                #     b_max=1.0,
-                #     clip=True,
-                # ),
-                ToTensord(keys=['image','noisy_image'], dtype=torch.float16),
-                CastToTyped(keys=['image','noisy_image'], dtype=torch.float16),
+                ScaleIntensityRanged(
+                    keys=["image","noisy_image"],
+                    a_min=0,
+                    a_max=1,
+                    b_min=0.0,
+                    b_max=1.0,
+                    clip=True,
+                ),
+                ToTensord(keys=['image','noisy_image'], dtype=torch.float32),
+                CastToTyped(keys=['image','noisy_image'], dtype=torch.float32),
         ])
     return transforms
 def doTransformS(transformS,imageS):

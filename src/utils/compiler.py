@@ -11,6 +11,7 @@ class CriterionFactory:
             'L1Loss': torch.nn.L1Loss,
             'MSELoss': torch.nn.MSELoss,
             'SSIMLoss': tgm.losses.SSIM,
+            'HuberLoss': torch.nn.HuberLoss,
         }
     
     def create_criterion(self, loss_dict):

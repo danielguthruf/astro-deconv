@@ -1,7 +1,7 @@
 train_batchsize: 
   value: 8
 validation_batchsize: 
-  value: 16
+  value: 1
 num_workers: 
   value: 6
 cache_rate: 
@@ -11,7 +11,7 @@ train_validation_ratio:
 spatial_size: 
   value: [512,512]
 epochs: 
-  value: 4000
+  value: 100000
 evaluation_step: 
   value: 50
 device: 
@@ -22,25 +22,27 @@ lr_scheduler:
 
 
 loss:
-  value: {name: L1Loss, reduction: mean}
-  # value: {name: SSIMLoss, window_size: 5, reduction: mean, max_val: 1}
+  # value: {name: L1Loss, reduction: mean}
+  value: {name: SSIMLoss, window_size: 5, reduction: mean, max_val: 1}
+  # value: {name: HuberLoss, reduction: mean, delta: 1}
 optimizer:
+  # value: {name: Adam, lr: 0.0003}
   value: {name: AdamW, lr: 0.0001, weight_decay: 0.001}
-  
+
 metric:
   value: [{name: SSIM, gaussian_kernel: False, sigma: 1.5, kernel_size: 5, reduction: elementwise_mean, k1: 0.01, k2: 0.03},
           {name: PSNR, data_range: null, base: 10, reduction: elementwise_mean},
           # {name: SNR, zero_mean: False},
           ]
 noise:
-  value: {name: PoissionNoise, ratio: 2, ps: null, ron: 3, dk: 3}
+  value: {name: PoissionNoise, ratio: 2, ron: 3, dk: 7}
 
 model:
   value: {name: BasicUNet, spatial_dims: 2, in_channels: 1, out_channels: 1, features: [32,32,64,128,256,32], 
           act: ['LeakyReLU', {'negative_slope': 0.1, 'inplace': True}], norm: ['instance', {'affine': True}]}
 
 crop:
-  value: {keys: ['image'], label_key: image, spatial_size: [512,512], pos: 1, neg: 0, num_samples: 6, image_key: image, image_threshold: 0.01, allow_smaller: True}
+  value: {keys: ['image'], label_key: image, spatial_size: [512,512], pos: 1, neg: 0, num_samples: 4, image_key: image, image_threshold: 0.01, allow_smaller: True}
 sliding_window:
-  value: {roi_size: [512,512], sw_batch_size: 1, overlap: 0.25, sw_device: cuda, device: cuda}
+  value: {roi_size: [512,512], sw_batch_size: 6, overlap: 0.25, sw_device: cuda, device: cuda}
 
